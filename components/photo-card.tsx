@@ -26,6 +26,17 @@ interface PhotoCardProps {
   isPremium?: boolean;
 }
 
+const buildOptimizedUrl = (src: string, width = 800, quality = 75) => {
+  // 1. Your custom Cloudflare domain (must be proxied via Cloudflare DNS)
+  const CLOUDFLARE_DOMAIN = "https://www.ugpicxdb.work";
+
+  // 2. Extract the relative path after domain (e.g. /user_xyz/image.jpg)
+  const relativePath = src.replace(CLOUDFLARE_DOMAIN, "");
+
+  // 3. Construct the optimized URL with Cloudflare transform params
+  return `${CLOUDFLARE_DOMAIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto${relativePath}`;
+};
+
 export function PhotoCard({
   id,
   src,
@@ -40,6 +51,8 @@ export function PhotoCard({
 }: PhotoCardProps & { onPhotoClick?: (id: string) => void }) {
   const { currency } = useSearch();
 
+  console.log(price, "price");
+
   // Convert price to selected currency
   const displayPrice = price ? convertPrice(price, "USD", currency) : undefined;
 
@@ -49,7 +62,7 @@ export function PhotoCard({
       onClick={() => onPhotoClick?.(id)}
     >
       <img
-        src={src || "/placeholder.svg"}
+        src={buildOptimizedUrl(src) || "/placeholder.svg"}
         alt={alt}
         className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
       />
@@ -66,7 +79,7 @@ export function PhotoCard({
         >
           <Heart className="h-4 w-4" />
         </Button>
-        {isPremium ? (
+        {price ? (
           <Button
             size="icon"
             variant="secondary"

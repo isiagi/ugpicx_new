@@ -47,6 +47,17 @@ type Photo = {
   };
 };
 
+const buildOptimizedUrl = (src: string, width = 800, quality = 75) => {
+  // 1. Your custom Cloudflare domain (must be proxied via Cloudflare DNS)
+  const CLOUDFLARE_DOMAIN = "https://www.ugpicxdb.work";
+
+  // 2. Extract the relative path after domain (e.g. /user_xyz/image.jpg)
+  const relativePath = src.replace(CLOUDFLARE_DOMAIN, "");
+
+  // 3. Construct the optimized URL with Cloudflare transform params
+  return `${CLOUDFLARE_DOMAIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto${relativePath}`;
+};
+
 export default function PhotoDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -140,7 +151,7 @@ export default function PhotoDetailPage() {
     : undefined;
 
   const handleDownload = () => {
-    if (photo.isPremium && photoPrice && photoPrice > 0) {
+    if (photo.price > 0) {
       alert(`Purchase required: ${formatPrice(photoPrice, currency)}`);
     } else {
       alert("Download started!");
@@ -169,9 +180,9 @@ export default function PhotoDetailPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Image Section */}
           <div className="space-y-4">
-            <div className="relative bg-black rounded-lg overflow-hidden">
+            <div className="relative bg-white rounded-lg overflow-hidden">
               <img
-                src={photo.src || "/placeholder.svg"}
+                src={buildOptimizedUrl(photo.src) || "/placeholder.svg"}
                 alt={photo.alt}
                 className="w-full h-auto object-contain max-h-[70vh]"
               />
@@ -203,10 +214,10 @@ export default function PhotoDetailPage() {
 
               {/* Stats */}
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                <span className="flex items-center gap-1">
+                {/* <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
                   {photo.views.toLocaleString()}
-                </span>
+                </span> */}
                 <span className="flex items-center gap-1">
                   <Download className="h-4 w-4" />
                   {photo.downloads.toLocaleString()}
@@ -220,13 +231,13 @@ export default function PhotoDetailPage() {
             {/* Title and Price */}
             <div>
               <h1 className="text-3xl font-bold mb-3">{photo.alt}</h1>
-              {photo.isPremium && photoPrice && (
+              {photo.price && (
                 <div className="flex items-center gap-2 mb-4">
                   <Badge
                     variant="secondary"
                     className="bg-yellow-100 text-yellow-800 text-lg px-3 py-1"
                   >
-                    {formatPrice(photoPrice, currency)}
+                    {formatPrice(photo.price, currency)}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
                     Premium Photo
@@ -245,12 +256,12 @@ export default function PhotoDetailPage() {
                   src={photo.photographer.avatar || "/placeholder.svg"}
                 />
                 <AvatarFallback className="text-xl">
-                  {photo.photographer.name.charAt(0)}
+                  {photo.photographer}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1">
                 <h3 className="text-lg font-semibold hover:text-primary transition-colors">
-                  {photo.photographer.name}
+                  {photo.photographer}
                 </h3>
                 <p className="text-muted-foreground">
                   @{photo.photographer.username}
@@ -275,7 +286,7 @@ export default function PhotoDetailPage() {
                 </Badge>
               </div>
 
-              {photo.isPremium && photoPrice ? (
+              {photo.price ? (
                 <div className="space-y-4">
                   <div className="p-4 border rounded-lg">
                     <div className="flex items-center justify-between mb-2">
@@ -283,7 +294,7 @@ export default function PhotoDetailPage() {
                         High Resolution Download
                       </span>
                       <span className="text-xl font-bold text-primary">
-                        {formatPrice(photoPrice, currency)}
+                        {formatPrice(photo.price, currency)}
                       </span>
                     </div>
                     <p className="text-sm text-muted-foreground mb-4">
@@ -336,7 +347,7 @@ export default function PhotoDetailPage() {
             {/* Tags */}
             <div>
               <h4 className="font-semibold mb-3">Related Tags</h4>
-              <div className="flex flex-wrap gap-2">
+              {/* <div className="flex flex-wrap gap-2">
                 {photo.tags.map((tag) => (
                   <Badge
                     key={tag}
@@ -349,7 +360,7 @@ export default function PhotoDetailPage() {
                     {tag}
                   </Badge>
                 ))}
-              </div>
+              </div> */}
             </div>
 
             {/* Photo Info */}
@@ -358,7 +369,7 @@ export default function PhotoDetailPage() {
               <div className="grid grid-cols-1 gap-3">
                 <div className="flex items-center gap-2 text-muted-foreground">
                   <Calendar className="h-4 w-4" />
-                  <span>Uploaded {photo.uploadDate}</span>
+                  <span>Uploaded {photo.createdAt}</span>
                 </div>
                 {photo.camera && (
                   <div className="flex items-center gap-2 text-muted-foreground">

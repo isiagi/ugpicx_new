@@ -6,6 +6,8 @@ import { SearchProvider } from "@/components/search-provider";
 import "./globals.css";
 import { Suspense } from "react";
 import { Providers } from "./provider";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -31,11 +33,14 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <SearchProvider>
-            <Suspense>
-              <Providers>{children}</Providers>
-            </Suspense>
-          </SearchProvider>
+          <ClerkProvider>
+            <SearchProvider>
+              <Suspense>
+                <Providers>{children}</Providers>
+                <Toaster />
+              </Suspense>
+            </SearchProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>
