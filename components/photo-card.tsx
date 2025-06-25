@@ -51,7 +51,7 @@ export function PhotoCard({
 }: PhotoCardProps & { onPhotoClick?: (id: string) => void }) {
   const { currency } = useSearch();
 
-  console.log(price, "price");
+  console.log(src, "price");
 
   // Convert price to selected currency
   const displayPrice = price ? convertPrice(price, "USD", currency) : undefined;
@@ -86,7 +86,8 @@ export function PhotoCard({
             className="h-8 w-8 bg-white/90 hover:bg-white"
             onClick={(e) => {
               e.stopPropagation();
-              handlePhotoDownload({ id, src, alt, isPremium, price });
+              // Use original src for download, not optimized URL
+              handlePhotoDownload({ id, src: src, alt, isPremium, price });
             }}
           >
             <span className="text-xs font-bold">
@@ -100,7 +101,8 @@ export function PhotoCard({
             className="h-8 w-8 bg-white/90 hover:bg-white"
             onClick={(e) => {
               e.stopPropagation();
-              handlePhotoDownload({ id, src, alt, isPremium, price });
+              // Use original src for download, not optimized URL
+              handlePhotoDownload({ id, src: src, alt, isPremium, price });
             }}
           >
             <Download className="h-4 w-4" />
