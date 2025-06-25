@@ -138,9 +138,11 @@ const mockPhotos = [
 export function PhotoGrid({
   category,
   refreshCounter,
+  searchQuery,
 }: {
   category?: string;
   refreshCounter: number;
+  searchQuery?: string;
 }) {
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["images", category, refreshCounter],
@@ -148,6 +150,10 @@ export function PhotoGrid({
       const url = new URL("/api/images", window.location.origin);
       if (category && category !== "All") {
         url.searchParams.append("category", category);
+      }
+
+      if (searchQuery) {
+        url.searchParams.append("query", searchQuery);
       }
       try {
         const response = await fetch(url.toString());

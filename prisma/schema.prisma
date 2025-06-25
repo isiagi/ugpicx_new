@@ -13,14 +13,13 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
 model Image {
   id           String   @id @default(cuid())
   title        String
   alt          String
   src          String
   photographer String
-  description String?
+  description  String?
   email        String?
   website      String?
   instagram    String?
@@ -29,7 +28,29 @@ model Image {
   size         String
   price        Float?
   downloads    Int      @default(0)
-  userId       String? @default(cuid())
+  views        Int      @default(0)  // Add this line for quick view count
+  userId       String?  @default(cuid())
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  
+  // Add relation to detailed view tracking
+  imageViews   ImageView[]
+}
+
+// New model for detailed view tracking
+model ImageView {
+  id        String   @id @default(cuid())
+  imageId   String
+  ipAddress String
+  userAgent String?
+  referrer  String?
+  timestamp DateTime @default(now())
+  createdAt DateTime @default(now())
+  
+  image Image @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  
+  @@index([imageId])
+  @@index([ipAddress])
+  @@index([createdAt])
+  @@map("image_views")
 }

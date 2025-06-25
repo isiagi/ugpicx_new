@@ -22,6 +22,8 @@ import { Header } from "@/components/header";
 import { ShareModal } from "@/components/share-modal";
 import { useSearch } from "@/components/search-provider";
 import { convertPrice, formatPrice } from "@/lib/currency";
+import { handlePhotoDownload } from "@/components/download-handler";
+import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
 
 // Type definitions based on your Prisma schema
 type Photo = {
@@ -58,6 +60,25 @@ const buildOptimizedUrl = (src: string, width = 800, quality = 75) => {
   return `${CLOUDFLARE_DOMAIN}/cdn-cgi/image/width=${width},quality=${quality},format=auto${relativePath}`;
 };
 
+// View tracking function
+const trackView = async (imageId) => {
+  try {
+    await fetch(`/api/images/${imageId}/view`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        timestamp: new Date().toISOString(),
+        userAgent: navigator.userAgent,
+        referrer: document.referrer,
+      }),
+    });
+  } catch (error) {
+    console.warn("View tracking failed:", error);
+  }
+};
+
 export default function PhotoDetailPage() {
   const params = useParams();
   const router = useRouter();
@@ -67,6 +88,10 @@ export default function PhotoDetailPage() {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [viewTracked, setViewTracked] = useState(false);
+
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [isPurchased, setIsPurchased] = useState(false);
 
   useEffect(() => {
     const fetchPhoto = async () => {
@@ -87,6 +112,8 @@ export default function PhotoDetailPage() {
         }
 
         const photoData: Photo = await response.json();
+        console.log(photoData, "photoData");
+
         setPhoto(photoData);
       } catch (err) {
         console.error("Error fetching photo:", err);
@@ -100,6 +127,47 @@ export default function PhotoDetailPage() {
       fetchPhoto();
     }
   }, [params.id]);
+
+  // Track view when photo is loaded and visible
+  useEffect(() => {
+    if (photo && !viewTracked && !loading) {
+      // Optional: Add intersection observer to track only when image is actually viewed
+      const trackViewWithDelay = () => {
+        setTimeout(() => {
+          trackView(photo.id);
+          setViewTracked(true);
+        }, 2000); // Track after 2 seconds to ensure genuine view
+      };
+
+      trackViewWithDelay();
+    }
+  }, [photo, viewTracked, loading]);
+
+  // Alternative: Track view with Intersection Observer (more accurate)
+  useEffect(() => {
+    if (!photo || viewTracked) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && entry.intersectionRatio > 0.5) {
+            // Track view when image is at least 50% visible
+            trackView(photo.id);
+            setViewTracked(true);
+            observer.disconnect();
+          }
+        });
+      },
+      { threshold: 0.5 }
+    );
+
+    const imageElement = document.querySelector("[data-photo-image]");
+    if (imageElement) {
+      observer.observe(imageElement);
+    }
+
+    return () => observer.disconnect();
+  }, [photo, viewTracked]);
 
   if (loading) {
     return (
@@ -150,16 +218,147 @@ export default function PhotoDetailPage() {
     ? convertPrice(photo.price, "USD", currency)
     : undefined;
 
-  const handleDownload = () => {
+  const handleDownload = (
+    id: string,
+    src: string,
+    alt: string,
+    isPremium: boolean,
+    price: number
+  ) => {
     if (photo.price > 0) {
-      alert(`Purchase required: ${formatPrice(photoPrice, currency)}`);
+      alert(`Purchase required: ${formatPrice(photo.price, currency)}`);
     } else {
       alert("Download started!");
+      handlePhotoDownload({ id, src: src, alt, isPremium, price });
     }
   };
 
+  // Flutterwave configuration
+  const config = {
+    public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY!,
+    tx_ref: `ugpicx_${photo?.id}_${Date.now()}`,
+    amount: photo.price || 0,
+    currency: currency,
+    payment_options:
+      currency === "UGX"
+        ? "card,mobilemoneyuganda,ussd,banktransfer"
+        : "card,banktransfer",
+    customer: {
+      email: "customer@ugpicxdb.work", // Get from user session/auth
+      phone_number: "070********", // Get from user profile
+      name: "Customer", // Get from user session/auth
+    },
+    customizations: {
+      title: "UgPicXDB Photo Purchase",
+      description: `Purchase: ${photo?.alt || "Premium Photo"}`,
+      logo: "https://www.ugpicxdb.work/logo.png",
+    },
+    meta: {
+      photo_id: photo?.id,
+      photo_title: photo?.alt,
+      photographer: photo?.photographer?.username,
+    },
+  };
+
+  const handleFlutterPayment = useFlutterwave(config);
+
+  // Replace your handlePurchase function with this implementation
   const handlePurchase = () => {
-    alert(`Purchasing photo for ${formatPrice(photoPrice!, currency)}`);
+    if (!photo || !photoPrice) {
+      alert("Cannot process payment: Missing photo or price information");
+      return;
+    }
+
+    setIsProcessingPayment(true);
+
+    handleFlutterPayment({
+      callback: async (response) => {
+        console.log("Payment response:", response);
+        closePaymentModal();
+
+        if (response.status === "successful") {
+          try {
+            // Set as purchased first
+            setIsPurchased(true);
+
+            // Show success message
+            alert("Payment successful! Your download will start shortly.");
+
+            // // Verify payment and download
+            await verifyPaymentAndDownload(response.transaction_id, photo.id);
+            // Download photo
+            // await handlePhotoDownload({
+            //   id: photo.id,
+            //   src: photo.src,
+            //   alt: photo.alt,
+            //   isPremium: photo.isPremium,
+            //   price: photo.price,
+            // });
+          } catch (error) {
+            console.error("Post-payment processing error:", error);
+            alert(
+              "Payment successful but download failed. Please contact support."
+            );
+          }
+        } else {
+          alert("Payment was not successful. Please try again.");
+        }
+        setIsProcessingPayment(false);
+      },
+      onClose: () => {
+        setIsProcessingPayment(false);
+        console.log("Payment modal closed");
+      },
+    });
+  };
+
+  const verifyPaymentAndDownload = async (transactionId, photoId) => {
+    try {
+      // Call your backend API to verify payment with Flutterwave
+      const verificationResponse = await fetch("/api/payments/verify", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          transaction_id: transactionId,
+          photo_id: photoId,
+        }),
+      });
+
+      if (!verificationResponse.ok) {
+        throw new Error("Payment verification failed");
+      }
+
+      const verificationResult = await verificationResponse.json();
+
+      if (verificationResult.status === "success") {
+        // Payment verified successfully
+        alert("Payment successful! Your download will start shortly.");
+
+        // Trigger the download
+        handlePhotoDownload({
+          id: photo.id,
+          src: photo.src,
+          alt: photo.alt,
+          isPremium: photo.isPremium,
+          price: photo.price,
+          // paid: true, // Add this flag to indicate it's a paid download
+        });
+
+        // Optional: Update the UI to show purchase success
+        // You might want to add a state to track if user has purchased this photo
+      } else {
+        alert("Payment verification failed. Please contact support.");
+      }
+    } catch (error) {
+      console.error("Payment verification error:", error);
+      alert(
+        "Failed to verify payment. Please contact support if you were charged."
+      );
+    } finally {
+      setIsProcessingPayment(false);
+    }
   };
 
   const handlePhotographerClick = () => {
@@ -182,6 +381,7 @@ export default function PhotoDetailPage() {
           <div className="space-y-4">
             <div className="relative bg-white rounded-lg overflow-hidden">
               <img
+                data-photo-image // Add data attribute for intersection observer
                 src={buildOptimizedUrl(photo.src) || "/placeholder.svg"}
                 alt={photo.alt}
                 className="w-full h-auto object-contain max-h-[70vh]"
@@ -214,10 +414,10 @@ export default function PhotoDetailPage() {
 
               {/* Stats */}
               <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                {/* <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
-                  {photo.views.toLocaleString()}
-                </span> */}
+                  {photo.views}
+                </span>
                 <span className="flex items-center gap-1">
                   <Download className="h-4 w-4" />
                   {photo.downloads.toLocaleString()}
@@ -333,7 +533,18 @@ export default function PhotoDetailPage() {
                     <p className="text-sm text-muted-foreground mb-4">
                       High quality image for personal and commercial use
                     </p>
-                    <Button className="w-full" onClick={handleDownload}>
+                    <Button
+                      className="w-full"
+                      onClick={() =>
+                        handleDownload(
+                          photo.id,
+                          photo.src,
+                          photo.alt,
+                          photo.isPremium,
+                          photo.price
+                        )
+                      }
+                    >
                       <Download className="h-4 w-4 mr-2" />
                       Free Download
                     </Button>

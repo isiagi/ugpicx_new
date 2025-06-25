@@ -118,7 +118,7 @@ export function SearchPageContent() {
               </Badge>
             </div>
 
-            <PhotoGrid category={query} refreshCounter={0} />
+            <PhotoGrid category={null} searchQuery={query} refreshCounter={0} />
 
             {/* Load More */}
             <div className="text-center mt-12">

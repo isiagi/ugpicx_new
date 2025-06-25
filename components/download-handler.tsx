@@ -1,6 +1,10 @@
 "use client";
 
-export const downloadImage = async (src: string, filename: string) => {
+export const downloadImage = async (
+  src: string,
+  filename: string,
+  imageId: string
+) => {
   try {
     // Method 1: Fetch with proper headers and create blob
     const response = await fetch(src, {
@@ -33,6 +37,19 @@ export const downloadImage = async (src: string, filename: string) => {
     window.URL.revokeObjectURL(url);
 
     console.log(`Downloaded: ${filename}`);
+
+    const trackResponse = await fetch("/api/images/download", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ imageId }),
+    });
+
+    if (!trackResponse.ok) {
+      throw new Error("Failed to track download");
+    }
+
     return true;
   } catch (error) {
     console.error("Fetch download failed:", error);
@@ -92,7 +109,7 @@ export const handlePhotoDownload = async (photo: {
     .toLowerCase()}.jpg`;
 
   // Download the image
-  const success = await downloadImage(photo.src, filename);
+  const success = await downloadImage(photo.src, filename, photo.id);
 
   if (success) {
     alert("Download started! Check your downloads folder.");
