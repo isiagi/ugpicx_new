@@ -13,17 +13,22 @@ import {
   Eye,
   CreditCard,
   Info,
+  Instagram,
+  Twitter,
+  Globe2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 import { Header } from "@/components/header";
 import { ShareModal } from "@/components/share-modal";
 import { useSearch } from "@/components/search-provider";
 import { convertPrice, formatPrice } from "@/lib/currency";
 import { handlePhotoDownload } from "@/components/download-handler";
 import { useFlutterwave, closePaymentModal } from "flutterwave-react-v3";
+import Link from "next/link";
 
 // Type definitions based on your Prisma schema
 type Photo = {
@@ -226,9 +231,25 @@ export default function PhotoDetailPage() {
     price: number
   ) => {
     if (photo.price > 0) {
-      alert(`Purchase required: ${formatPrice(photo.price, currency)}`);
+      // alert(`Purchase required: ${formatPrice(photo.price, currency)}`);
+      toast(`Purchase required: ${formatPrice(photo.price, currency)}`, {
+        icon: "💰",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
     } else {
-      alert("Download started!");
+      // alert("Download started!");
+      toast("Download started!", {
+        icon: "📥",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       handlePhotoDownload({ id, src: src, alt, isPremium, price });
     }
   };
@@ -265,7 +286,15 @@ export default function PhotoDetailPage() {
   // Replace your handlePurchase function with this implementation
   const handlePurchase = () => {
     if (!photo || !photoPrice) {
-      alert("Cannot process payment: Missing photo or price information");
+      // alert("Cannot process payment: Missing photo or price information");
+      toast("Cannot process payment: Missing photo or price information", {
+        icon: "⚠️",
+        style: {
+          borderRadius: "10px",
+          background: "#333",
+          color: "#fff",
+        },
+      });
       return;
     }
 
@@ -282,7 +311,15 @@ export default function PhotoDetailPage() {
             setIsPurchased(true);
 
             // Show success message
-            alert("Payment successful! Your download will start shortly.");
+            // alert("Payment successful! Your download will start shortly.");
+            // alert(
+            //   "Payment verification underway., Download will start after verification."
+            // );
+
+            toast("Payment Successful!", {
+              icon: "🚀",
+              description: "Download will start after verification.",
+            });
 
             // // Verify payment and download
             await verifyPaymentAndDownload(response.transaction_id, photo.id);
@@ -295,13 +332,29 @@ export default function PhotoDetailPage() {
             //   price: photo.price,
             // });
           } catch (error) {
-            console.error("Post-payment processing error:", error);
-            alert(
-              "Payment successful but download failed. Please contact support."
-            );
+            // console.error("Post-payment processing error:", error);
+            // alert(
+            //   "Payment successful but download failed. Please contact support."
+            // );
+            toast("Download failed. Please contact support.", {
+              icon: "⚠️",
+              style: {
+                borderRadius: "10px",
+                background: "#333",
+                color: "#fff",
+              },
+            });
           }
         } else {
-          alert("Payment was not successful. Please try again.");
+          // alert("Payment was not successful. Please try again.");
+          toast("Payment failed. Please try again.", {
+            icon: "⚠️",
+            style: {
+              borderRadius: "10px",
+              background: "#333",
+              color: "#fff",
+            },
+          });
         }
         setIsProcessingPayment(false);
       },
@@ -334,7 +387,12 @@ export default function PhotoDetailPage() {
 
       if (verificationResult.status === "success") {
         // Payment verified successfully
-        alert("Payment successful! Your download will start shortly.");
+
+        toast("Download started!", {
+          icon: "🚀",
+          duration: 4000,
+          description: "Your download will start soon.",
+        });
 
         // Trigger the download
         handlePhotoDownload({
@@ -349,13 +407,20 @@ export default function PhotoDetailPage() {
         // Optional: Update the UI to show purchase success
         // You might want to add a state to track if user has purchased this photo
       } else {
-        alert("Payment verification failed. Please contact support.");
+        toast("Payment verification failed. Please contact support.", {
+          icon: "❌",
+          duration: 4000,
+          description: "Payment verification failed. Please contact support.",
+        });
       }
     } catch (error) {
       console.error("Payment verification error:", error);
-      alert(
-        "Failed to verify payment. Please contact support if you were charged."
-      );
+
+      toast("Payment verification failed. Please contact support.", {
+        icon: "❌",
+        duration: 4000,
+        description: "Payment verification failed. Please contact support.",
+      });
     } finally {
       setIsProcessingPayment(false);
     }
@@ -363,6 +428,15 @@ export default function PhotoDetailPage() {
 
   const handlePhotographerClick = () => {
     router.push(`/photographer/${photo.photographer.username}`);
+  };
+
+  const handleViewProfile = () => {
+    toast("Coming Soon!", {
+      icon: "🚧",
+      duration: 4000,
+      description:
+        "Photographer profiles are currently in development. Stay tuned for updates!",
+    });
   };
 
   return (
@@ -431,6 +505,7 @@ export default function PhotoDetailPage() {
             {/* Title and Price */}
             <div>
               <h1 className="text-3xl font-bold mb-3">{photo.alt}</h1>
+              <h1 className="text-muted-foreground">{photo.description}</h1>
               {photo.price && (
                 <div className="flex items-center gap-2 mb-4">
                   <Badge
@@ -440,7 +515,7 @@ export default function PhotoDetailPage() {
                     {formatPrice(photo.price, currency)}
                   </Badge>
                   <span className="text-sm text-muted-foreground">
-                    Premium Photo
+                    Priced Photo
                   </span>
                 </div>
               )}
@@ -448,8 +523,8 @@ export default function PhotoDetailPage() {
 
             {/* Photographer Info */}
             <div
-              className="flex items-center gap-4 p-4 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
-              onClick={handlePhotographerClick}
+              className="flex items-center gap-4 p-4 rounded-lg border  hover:bg-muted/50 transition-colors"
+              // onClick={handlePhotographerClick}
             >
               <Avatar className="h-16 w-16">
                 <AvatarImage
@@ -463,16 +538,44 @@ export default function PhotoDetailPage() {
                 <h3 className="text-lg font-semibold hover:text-primary transition-colors">
                   {photo.photographer}
                 </h3>
-                <p className="text-muted-foreground">
-                  @{photo.photographer.username}
-                </p>
+                <p className="text-muted-foreground">@{photo.photographer}</p>
+
+                <div className="flex gap-3 mt-2">
+                  {/* Social media links */}
+                  <Link
+                    href={`${photo.instagram}` || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-pink-500 cursor-pointer transition-colors"
+                  >
+                    <Instagram size={20} />
+                  </Link>
+                  <Link
+                    href={`${photo.twitter}` || "#"}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-blue-400 cursor-pointer transition-colors"
+                  >
+                    <Twitter size={20} />
+                  </Link>
+                  <Link
+                    href={`${photo.website || "#"}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="hover:text-green-500 cursor-pointer transition-colors"
+                  >
+                    <Globe2 size={20} />
+                  </Link>
+                </div>
                 {photo.photographer.bio && (
                   <p className="text-sm text-muted-foreground mt-1">
                     {photo.photographer.bio}
                   </p>
                 )}
               </div>
-              <Button variant="outline">View Profile</Button>
+              <Button variant="outline" onClick={handleViewProfile}>
+                View Profile
+              </Button>
             </div>
 
             <Separator />

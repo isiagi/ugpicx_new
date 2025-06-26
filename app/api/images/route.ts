@@ -34,6 +34,8 @@ export async function GET(request: Request) {
             { title: { contains: query, mode: "insensitive" } },
             { alt: { contains: query, mode: "insensitive" } },
             { category: { contains: query, mode: "insensitive" } },
+            { photographer: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
           ],
         },
       });

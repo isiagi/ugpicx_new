@@ -175,5 +175,5 @@ export function PhotoGrid({
 
   // console.log(images, "images");
 
-  return <MasonryGrid photos={images} />;
+  return <MasonryGrid photos={images} isLoading={isLoading} />;
 }

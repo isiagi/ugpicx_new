@@ -143,28 +143,56 @@ export function UserProfile() {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
 
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
 
+  // Extract userId with proper null checking
   const userId = user?.id;
 
+  // Improved useEffect with better error handling and conditions
   useEffect(() => {
     const fetchImages = async () => {
+      // Only fetch if user is loaded, signed in, and we have a userId
+      if (!isLoaded || !isSignedIn || !userId) {
+        console.log("User not ready:", { isLoaded, isSignedIn, userId });
+        return;
+      }
+
       setLoading(true);
       try {
         const response = await fetch(`/api/images/${userId}`);
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
-        console.log(data, "data");
+        console.log("Fetched images:", data);
 
         setImages(data);
       } catch (error) {
         console.error("Failed to fetch images:", error);
+        // Optionally set an error state here
+        // setError(error.message);
       } finally {
         setLoading(false);
       }
     };
 
     fetchImages();
-  }, [userId]);
+  }, [userId, isSignedIn, isLoaded]); // Include isLoaded and isSignedIn in dependencies
+
+  // Alternative: If you want to show different states
+  if (!isLoaded) {
+    return <div>Loading user...</div>;
+  }
+
+  if (!isSignedIn) {
+    return <div>Please sign in to view your profile.</div>;
+  }
+
+  if (!userId) {
+    return <div>Unable to load user information.</div>;
+  }
 
   const handleEditPhoto = (photoId: string) => {
     alert(`Edit photo ${photoId}`);
@@ -325,14 +353,14 @@ export function UserProfile() {
               <div className="text-xs text-muted-foreground">Downloads</div>
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">
                 {mockUserData.stats.totalLikes.toLocaleString()}
               </div>
               <div className="text-xs text-muted-foreground">Likes</div>
             </CardContent>
-          </Card>
+          </Card> */}
           <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">
@@ -341,35 +369,35 @@ export function UserProfile() {
               <div className="text-xs text-muted-foreground">Earnings</div>
             </CardContent>
           </Card>
-          <Card>
+          {/* <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">
                 {mockUserData.stats.followers}
               </div>
               <div className="text-xs text-muted-foreground">Followers</div>
             </CardContent>
-          </Card>
-          <Card>
+          </Card> */}
+          {/* <Card>
             <CardContent className="p-4 text-center">
               <div className="text-2xl font-bold">
                 {mockUserData.stats.following}
               </div>
               <div className="text-xs text-muted-foreground">Following</div>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Overview</TabsTrigger>
+          {/* <TabsTrigger value="overview">Overview</TabsTrigger> */}
           <TabsTrigger value="photos">My Photos</TabsTrigger>
           <TabsTrigger value="downloads">Downloads</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
+          {/* <TabsTrigger value="analytics">Analytics</TabsTrigger> */}
         </TabsList>
 
-        <TabsContent value="overview" className="mt-6">
+        {/* <TabsContent value="overview" className="mt-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <Card className="lg:col-span-2">
               <CardHeader>
@@ -434,7 +462,7 @@ export function UserProfile() {
               </CardContent>
             </Card>
           </div>
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="photos" className="mt-6">
           <div className="flex justify-between items-center mb-6">
@@ -562,7 +590,7 @@ export function UserProfile() {
           </div>
         </TabsContent>
 
-        <TabsContent value="analytics" className="mt-6">
+        {/* <TabsContent value="analytics" className="mt-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -646,7 +674,7 @@ export function UserProfile() {
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
       </Tabs>
 
       {/* Share Modal */}

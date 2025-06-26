@@ -1,5 +1,7 @@
 "use client";
 
+import { toast } from "sonner";
+
 export const downloadImage = async (
   src: string,
   filename: string,
@@ -112,9 +114,23 @@ export const handlePhotoDownload = async (photo: {
   const success = await downloadImage(photo.src, filename, photo.id);
 
   if (success) {
-    alert("Download started! Check your downloads folder.");
+    toast("Download successful!", {
+      icon: "📥",
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
   } else {
-    alert("Download failed. The image will open in a new tab instead.");
+    toast("Download failed. The image will open in a new tab instead.", {
+      icon: "📥",
+      style: {
+        borderRadius: "10px",
+        background: "#333",
+        color: "#fff",
+      },
+    });
     // As final fallback, open in new tab
     window.open(photo.src, "_blank");
   }
