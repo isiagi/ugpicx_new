@@ -129,11 +129,11 @@ export function PhotoCard({
               </span>
             )}
             <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3 text-black" />
+              <Heart className="h-3 w-3" />
               {likes}
             </span>
             <span className="flex items-center gap-1">
-              <Download className="h-3 w-3 text-black" />
+              <Download className="h-3 w-3" />
               {downloads}
             </span>
           </div>
