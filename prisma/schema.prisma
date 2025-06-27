@@ -54,3 +54,41 @@ model ImageView {
   @@index([createdAt])
   @@map("image_views")
 }
+
+// User model synced with Clerk
+model User {
+  id                String   @id // This will be Clerk's user ID
+  email             String   @unique
+  firstName         String?
+  lastName          String?
+  imageUrl          String?  // Profile image URL
+  coverImageUrl     String?  // Cover/banner image URL
+  username          String?  @unique
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  lastActiveAt      DateTime @default(now())
+  
+  // Profile information
+  bio               String?
+  website           String?
+  instagram         String?
+  twitter           String?
+  linkedin          String?
+  github            String?
+  youtube           String?
+  tiktok            String?
+  location          String?
+  
+  // User preferences
+  isPublic          Boolean  @default(true)
+  emailNotifications Boolean @default(true)
+  
+  // Relations
+  // images            Image[]
+  // favorites         Favorite[]
+  // downloads         Download[]
+  // profileViews      ProfileView[]
+  // viewedProfiles    ProfileView[] @relation("ViewerProfiles")
+  
+  @@map("users")
+}

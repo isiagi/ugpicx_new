@@ -47,7 +47,7 @@ export function SearchPageContent() {
       <main className="container mx-auto px-4 py-8">
         {/* Search Header */}
         <div className="mb-8">
-          <div className="max-w-2xl mx-auto mb-6">
+          <div className="hidden md:block max-w-2xl mx-auto mb-6">
             <SearchBar
               placeholder="Search for images..."
               onSearch={handleNewSearch}
@@ -118,14 +118,18 @@ export function SearchPageContent() {
               </Badge>
             </div>
 
-            <PhotoGrid category={null} searchQuery={query} refreshCounter={0} />
+            <PhotoGrid
+              category={null}
+              searchQuery={query}
+              refreshCounter={query}
+            />
 
             {/* Load More */}
-            <div className="text-center mt-12">
+            {/* <div className="text-center mt-12">
               <Button variant="outline" size="lg">
                 Load More Results
               </Button>
-            </div>
+            </div> */}
           </div>
         )}
       </main>

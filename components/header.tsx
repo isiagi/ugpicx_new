@@ -14,6 +14,8 @@ import {
 import { SearchBar } from "./search-bar";
 import { CurrencySelector } from "./currency-selector";
 import { MobileNav } from "./mobile-nav";
+import Link from "next/link";
+import Image from "next/image";
 
 export function Header() {
   const { isSignedIn, user } = useUser();
@@ -28,11 +30,9 @@ export function Header() {
 
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <Camera className="h-8 w-8 text-primary" />
-            <span className="text-2xl font-bold">ugpicx</span>
-            <span className="text-xs bg-primary/10 text-primary px-2 py-1 rounded-full">
-              🇺🇬
-            </span>
+            <Link href="/" className="flex items-center space-x-2">
+              <Image src={"/ug.png"} alt="logo" width={120} height={150} />
+            </Link>
           </div>
         </div>
 
@@ -42,7 +42,7 @@ export function Header() {
             href="/"
             className="text-foreground hover:text-primary transition-colors"
           >
-            Explore
+            Home
           </a>
           <div className="relative group">
             <button className="text-muted-foreground hover:text-primary transition-colors">
@@ -89,16 +89,16 @@ export function Header() {
               </div>
             </div>
           </div>
-          <a
+          {/* <a
             href="#"
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             Community
-          </a>
+          </a> */}
         </nav>
 
         {/* Search Bar - Hidden on mobile */}
-        <div className="hidden sm:flex flex-1 max-w-md mx-6">
+        <div className="hidden sm:flex max-w-md mx-6">
           <SearchBar />
         </div>
 

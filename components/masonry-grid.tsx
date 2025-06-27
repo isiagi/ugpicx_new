@@ -26,6 +26,7 @@ interface MasonryGridProps {
     camera?: string;
     location?: string;
   }>;
+  isLoading: boolean;
 }
 
 export function MasonryGrid({ photos, isLoading }: MasonryGridProps) {

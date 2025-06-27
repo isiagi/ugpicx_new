@@ -28,6 +28,7 @@ import { PhotoCard } from "./photo-card";
 import { ShareModal } from "./share-modal";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { useUser } from "@clerk/nextjs";
+import { toast } from "sonner";
 
 const mockUserData = {
   id: "user1",
@@ -142,11 +143,45 @@ export function UserProfile() {
   const [sharingPhoto, setSharingPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
+  const [error, setError] = useState<string | null>(null);
+  const [profile, setProfile] = useState(null);
 
   const { user, isSignedIn, isLoaded } = useUser();
 
+  console.log(user?.firstName, "user");
+
   // Extract userId with proper null checking
   const userId = user?.id;
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !userId) return;
+    fetchProfile();
+  }, [isLoaded, isSignedIn, userId]);
+
+  const fetchProfile = async () => {
+    try {
+      if (!userId) {
+        console.warn("fetchProfile called without userId");
+        return;
+      }
+
+      setLoading(true);
+      const response = await fetch(`/api/profile/${userId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch profile");
+      }
+
+      const data = await response.json();
+      console.log("Fetched profile data:", data);
+
+      setProfile(data.profile); // Or data directly if no `profile` wrapper
+    } catch (err) {
+      console.error("Error fetching profile:", err);
+      setError(err instanceof Error ? err.message : "Unknown error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // Improved useEffect with better error handling and conditions
   useEffect(() => {
@@ -198,9 +233,27 @@ export function UserProfile() {
     alert(`Edit photo ${photoId}`);
   };
 
-  const handleDeletePhoto = (photoId: string) => {
-    if (confirm("Are you sure you want to delete this photo?")) {
-      alert(`Photo ${photoId} deleted`);
+  const handleDeletePhoto = async (photoId: string) => {
+    if (confirm("Are you sure you want to delete this image?")) {
+      try {
+        const response = await fetch(`/api/images/${photoId}`, {
+          method: "DELETE",
+        });
+
+        if (response.ok) {
+          setImages(images?.filter((image: any) => image.id !== photoId));
+          toast("Image deleted", {
+            description: "The image has been successfully deleted.",
+          });
+        } else {
+          throw new Error("Failed to delete image");
+        }
+      } catch (error) {
+        console.error("Error deleting image:", error);
+        toast("Error", {
+          description: "Failed to delete the image. Please try again.",
+        });
+      }
     }
   };
 
@@ -218,7 +271,7 @@ export function UserProfile() {
       {mockUserData.coverImage && (
         <div className="relative h-48 md:h-64 mb-8 rounded-lg overflow-hidden">
           <img
-            src={mockUserData.coverImage || "/placeholder.svg"}
+            src={user?.imageUrl || "/placeholder.svg"}
             alt="Cover"
             className="w-full h-full object-cover"
           />
@@ -239,9 +292,9 @@ export function UserProfile() {
         <div className="flex flex-col md:flex-row gap-6 items-start">
           <div className="relative">
             <Avatar className="h-24 w-24">
-              <AvatarImage src={mockUserData.avatar || "/placeholder.svg"} />
+              <AvatarImage src={user?.imageUrl || "/placeholder.svg"} />
               <AvatarFallback className="text-2xl">
-                {mockUserData.name.charAt(0)}
+                {user?.firstName?.charAt(0) || "U"}
               </AvatarFallback>
             </Avatar>
             <Button
@@ -256,10 +309,8 @@ export function UserProfile() {
           <div className="flex-1">
             <div className="flex flex-col md:flex-row md:items-center gap-4 mb-4">
               <div>
-                <h1 className="text-3xl font-bold">{mockUserData.name}</h1>
-                <p className="text-muted-foreground">
-                  @{mockUserData.username}
-                </p>
+                <h1 className="text-3xl font-bold">{user?.fullName}</h1>
+                <p className="text-muted-foreground">@{user?.username}</p>
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" size="sm">
@@ -389,10 +440,16 @@ export function UserProfile() {
       </div>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
+      <Tabs
+        value={activeTab}
+        defaultValue="photos"
+        onValueChange={setActiveTab}
+      >
         <TabsList className="grid w-full grid-cols-4">
           {/* <TabsTrigger value="overview">Overview</TabsTrigger> */}
-          <TabsTrigger value="photos">My Photos</TabsTrigger>
+          <TabsTrigger value="photos" defaultChecked>
+            My Photos
+          </TabsTrigger>
           <TabsTrigger value="downloads">Downloads</TabsTrigger>
           {/* <TabsTrigger value="analytics">Analytics</TabsTrigger> */}
         </TabsList>

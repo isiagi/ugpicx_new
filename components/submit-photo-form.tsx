@@ -96,6 +96,7 @@ export function SubmitPhotoForm({
     const maxFileSize = 10 * 1024 * 1024; // 10MB in bytes
     if (file.size > maxFileSize) {
       toast("File too large", {
+        icon: <AlertCircle className="h-4 w-4" />,
         description: `${file.name} is larger than 10MB. Please choose a smaller file.`,
         action: {
           label: "OK",
@@ -148,6 +149,7 @@ export function SubmitPhotoForm({
               onClick: () => console.log("Resolution error acknowledged"),
             },
             duration: 10000,
+            icon: <AlertCircle className="h-4 w-4" />,
           });
           URL.revokeObjectURL(preview); // Clean up
         }
@@ -537,7 +539,7 @@ export function SubmitPhotoForm({
               )}
             </div>
 
-            <div className="mt-4">
+            {/* <div className="mt-4">
               <Label htmlFor="src">Or paste image URL</Label>
               <p className="text-xs text-muted-foreground mb-2">
                 Use either file upload or URL, not both
@@ -549,7 +551,7 @@ export function SubmitPhotoForm({
                 onChange={(e) => handleInputChange("src", e.target.value)}
                 disabled={!!selectedImage}
               />
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 
@@ -572,14 +574,24 @@ export function SubmitPhotoForm({
                 />
               </div>
               <div>
-                <Label htmlFor="alt">Alt Text *</Label>
-                <Input
-                  id="alt"
-                  placeholder="Descriptive text for accessibility"
-                  value={formData.alt}
-                  onChange={(e) => handleInputChange("alt", e.target.value)}
-                  required
-                />
+                <Label htmlFor="category">Category *</Label>
+                <Select
+                  value={formData.category}
+                  onValueChange={(value) =>
+                    handleInputChange("category", value)
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category.toLowerCase()}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
@@ -596,7 +608,7 @@ export function SubmitPhotoForm({
               />
             </div>
 
-            <div>
+            {/* <div>
               <Label htmlFor="category">Category *</Label>
               <Select
                 value={formData.category}
@@ -613,7 +625,7 @@ export function SubmitPhotoForm({
                   ))}
                 </SelectContent>
               </Select>
-            </div>
+            </div> */}
           </CardContent>
         </Card>
 

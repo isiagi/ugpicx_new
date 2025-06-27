@@ -2,6 +2,7 @@
 
 import { MasonryGrid } from "./masonry-grid";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "./ui/button";
 
 const mockPhotos = [
   {
@@ -140,9 +141,9 @@ export function PhotoGrid({
   refreshCounter,
   searchQuery,
 }: {
-  category?: string;
-  refreshCounter: number;
-  searchQuery?: string;
+  category?: any;
+  refreshCounter?: any;
+  searchQuery?: any;
 }) {
   const { data: images = [], isLoading } = useQuery({
     queryKey: ["images", category, refreshCounter],
@@ -173,7 +174,59 @@ export function PhotoGrid({
     },
   });
 
-  // console.log(images, "images");
+  const suggestedSearches = [
+    "uganda wildlife",
+    "kampala city",
+    "lake victoria",
+    "mountain rwenzori",
+    "cultural heritage",
+    "landscapes",
+    "traditional dance",
+    "african sunset",
+  ];
+
+  const handleNewSearch = (search: string) => {
+    console.log(search);
+    const encoded = encodeURIComponent(search);
+    window.location.href = `/search?q=${encoded}`;
+
+    // router.push(`/search?q=${encodeURIComponent(search)}`);
+  };
+
+  if (!isLoading && images && images.length === 0) {
+    return (
+      <div className="text-center py-12">
+        <div className="text-6xl mb-4">🔍</div>
+        <h2 className="text-2xl font-bold mb-2">No images found</h2>
+        <p className="text-muted-foreground mb-6">
+          Try searching for something else or browse our categories
+        </p>
+        <div className="space-y-4">
+          <div>
+            <p className="text-sm font-medium mb-2">
+              Try these popular searches:
+            </p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {suggestedSearches.slice(0, 4).map((search) => (
+                <Button
+                  key={search}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => handleNewSearch(search)}
+                >
+                  {search}
+                </Button>
+              ))}
+            </div>
+          </div>
+
+          <Button asChild>
+            <a href="/">Browse All Photos</a>
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return <MasonryGrid photos={images} isLoading={isLoading} />;
 }
