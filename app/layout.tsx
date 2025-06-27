@@ -6,6 +6,9 @@ import { SearchProvider } from "@/components/search-provider";
 import "./globals.css";
 import { Suspense } from "react";
 import { Providers } from "./provider";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Toaster } from "@/components/ui/sonner";
+import GoogleAnalytics from "@/components/GoogleAnalytics";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -14,7 +17,6 @@ export const metadata: Metadata = {
   description:
     "Discover over 3 million+ high quality stock images, photos and vectors showcasing the beauty of Uganda and beyond, shared by our talented local and international community.",
   viewport: "width=device-width, initial-scale=1",
-  generator: "v0.dev",
 };
 
 export default function RootLayout({
@@ -25,17 +27,21 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
+        <GoogleAnalytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
         >
-          <SearchProvider>
-            <Suspense>
-              <Providers>{children}</Providers>
-            </Suspense>
-          </SearchProvider>
+          <ClerkProvider>
+            <SearchProvider>
+              <Suspense>
+                <Providers>{children}</Providers>
+                <Toaster />
+              </Suspense>
+            </SearchProvider>
+          </ClerkProvider>
         </ThemeProvider>
       </body>
     </html>

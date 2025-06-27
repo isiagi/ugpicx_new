@@ -17,7 +17,7 @@ export function HeroSection() {
           <SearchBar className="h-14 text-lg" />
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground mb-6">
+        {/* <div className="flex flex-wrap justify-center gap-2 text-sm text-muted-foreground mb-6">
           <span>Trending:</span>
           {[
             "uganda wildlife",
@@ -35,7 +35,7 @@ export function HeroSection() {
               {tag}
             </Button>
           ))}
-        </div>
+        </div> */}
 
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">

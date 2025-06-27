@@ -1,7 +1,7 @@
-import { Header } from "@/components/header"
-import { HeroSection } from "@/components/hero-section"
-import { CategoryFilter } from "@/components/category-filter"
-import { PhotoGrid } from "@/components/photo-grid"
+import { Header } from "@/components/header";
+import { HeroSection } from "@/components/hero-section";
+import { CategoryFilter } from "@/components/category-filter";
+import { PhotoGrid } from "@/components/photo-grid";
 
 export default function HomePage() {
   return (
@@ -28,9 +28,11 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-2 mb-4">
             <span className="text-2xl font-bold text-foreground">ugpicx</span>
           </div>
-          <p className="mb-4">Beautiful free images and pictures for everyone.</p>
+          <p className="mb-4">
+            Beautiful free images and pictures for everyone.
+          </p>
           <div className="flex justify-center gap-6 text-sm">
-            <a href="#" className="hover:text-primary transition-colors">
+            <a href="/about" className="hover:text-primary transition-colors">
               About
             </a>
             <a href="#" className="hover:text-primary transition-colors">
@@ -39,7 +41,7 @@ export default function HomePage() {
             <a href="#" className="hover:text-primary transition-colors">
               API
             </a>
-            <a href="#" className="hover:text-primary transition-colors">
+            <a href="/privacy" className="hover:text-primary transition-colors">
               Privacy
             </a>
             <a href="#" className="hover:text-primary transition-colors">
@@ -49,5 +51,5 @@ export default function HomePage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

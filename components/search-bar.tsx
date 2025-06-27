@@ -1,52 +1,59 @@
-"use client"
+"use client";
 
-import type React from "react"
+import type React from "react";
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
-import { Search, X } from "lucide-react"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { useSearch } from "./search-provider"
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Search, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { useSearch } from "./search-provider";
 
 interface SearchBarProps {
-  placeholder?: string
-  className?: string
-  onSearch?: (query: string) => void
+  placeholder?: string;
+  className?: string;
+  onSearch?: (query: string) => void;
 }
 
-export function SearchBar({ placeholder = "Search high-resolution images", className, onSearch }: SearchBarProps) {
-  const router = useRouter()
-  const { searchQuery, setSearchQuery, setIsSearching } = useSearch()
-  const [localQuery, setLocalQuery] = useState(searchQuery)
+export function SearchBar({
+  placeholder = "Search high-resolution images",
+  className,
+  onSearch,
+}: SearchBarProps) {
+  const router = useRouter();
+  const { searchQuery, setSearchQuery, setIsSearching } = useSearch();
+  const [localQuery, setLocalQuery] = useState(searchQuery);
 
   useEffect(() => {
-    setLocalQuery(searchQuery)
-  }, [searchQuery])
+    setLocalQuery(searchQuery);
+  }, [searchQuery]);
 
   const handleSearch = (query: string) => {
     if (query.trim()) {
-      setSearchQuery(query.trim())
-      setIsSearching(true)
+      setSearchQuery(query.trim());
+      setIsSearching(true);
 
       if (onSearch) {
-        onSearch(query.trim())
+        onSearch(query.trim());
+        setLocalQuery("");
       } else {
-        router.push(`/search?q=${encodeURIComponent(query.trim())}`)
+        router.push(`/search?q=${encodeURIComponent(query.trim())}`);
+        setLocalQuery("");
       }
     }
-  }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    handleSearch(localQuery)
-  }
+    e.preventDefault();
+    handleSearch(localQuery);
+    setLocalQuery("");
+  };
 
   const handleClear = () => {
-    setLocalQuery("")
-    setSearchQuery("")
-    setIsSearching(false)
-  }
+    setLocalQuery("");
+    setSearchQuery("");
+    setIsSearching(false);
+  };
 
   return (
     <form onSubmit={handleSubmit} className={`relative ${className}`}>
@@ -59,7 +66,13 @@ export function SearchBar({ placeholder = "Search high-resolution images", class
       />
       <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-1">
         {localQuery && (
-          <Button type="button" variant="ghost" size="sm" className="h-6 w-6 p-0" onClick={handleClear}>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-6 w-6 p-0"
+            onClick={handleClear}
+          >
             <X className="h-3 w-3" />
           </Button>
         )}
@@ -68,5 +81,5 @@ export function SearchBar({ placeholder = "Search high-resolution images", class
         </Button>
       </div>
     </form>
-  )
+  );
 }

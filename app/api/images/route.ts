@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-// import { auth } from "@clerk/nextjs/server";
+import { auth } from "@clerk/nextjs/server";
 
 export async function GET(request: Request) {
   try {
@@ -34,6 +34,8 @@ export async function GET(request: Request) {
             { title: { contains: query, mode: "insensitive" } },
             { alt: { contains: query, mode: "insensitive" } },
             { category: { contains: query, mode: "insensitive" } },
+            { photographer: { contains: query, mode: "insensitive" } },
+            { description: { contains: query, mode: "insensitive" } },
           ],
         },
       });
@@ -62,10 +64,10 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    // const { userId } = await auth();
-    // if (!userId) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    const { userId } = await auth();
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const {
       title,
@@ -96,7 +98,7 @@ export async function POST(request: Request) {
         category,
         size: "medium",
         price: price ? Number.parseFloat(price) : null,
-        // userId,
+        userId,
       },
     });
 
