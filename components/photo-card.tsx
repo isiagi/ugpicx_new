@@ -77,7 +77,7 @@ export function PhotoCard({
           variant="secondary"
           className="h-8 w-8 bg-white/90 hover:bg-white"
         >
-          <Heart className="h-4 w-4" />
+          <Heart className="h-4 w-4 text-black" />
         </Button>
         {price ? (
           <Button
@@ -105,7 +105,7 @@ export function PhotoCard({
               handlePhotoDownload({ id, src: src, alt, isPremium, price });
             }}
           >
-            <Download className="h-4 w-4" />
+            <Download className="h-4 w-4 text-black" />
           </Button>
         )}
       </div>
@@ -129,11 +129,11 @@ export function PhotoCard({
               </span>
             )}
             <span className="flex items-center gap-1">
-              <Heart className="h-3 w-3" />
+              <Heart className="h-3 w-3 text-black" />
               {likes}
             </span>
             <span className="flex items-center gap-1">
-              <Download className="h-3 w-3" />
+              <Download className="h-3 w-3 text-black" />
               {downloads}
             </span>
           </div>

@@ -37,7 +37,7 @@ export function HeroSection() {
           ))}
         </div> */}
 
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
+        <div className="hidden sm:flex flex-col sm:flex-row items-center justify-center gap-4 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <span className="text-2xl">🇺🇬</span>
             <span>Proudly Ugandan</span>

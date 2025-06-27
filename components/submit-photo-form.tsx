@@ -235,13 +235,13 @@ export function SubmitPhotoForm({
     }
 
     // Validate required fields
-    if (!formData.title.trim() || !formData.alt.trim() || !formData.category) {
-      toast("Please fill in all required fields.", {
-        duration: 5000,
-        description: "Title, Alt Text, and Category are required.",
-      });
-      return;
-    }
+    // if (!formData.title.trim() || !formData.alt.trim() || !formData.category) {
+    //   toast("Please fill in all required fields.", {
+    //     duration: 5000,
+    //     description: "Title, Alt Text, and Category are required.",
+    //   });
+    //   return;
+    // }
 
     setIsSubmitting(true);
     setSubmitStatus("idle");

@@ -15,12 +15,12 @@ export default function HomePage() {
         </div>
 
         <PhotoGrid />
-
+        {/* 
         <div className="text-center mt-12">
           <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors">
             Load More Photos
           </button>
-        </div>
+        </div> */}
       </main>
 
       <footer className="border-t mt-20 py-12 px-4">

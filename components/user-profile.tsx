@@ -139,7 +139,7 @@ const mockDownloadHistory = [
 ];
 
 export function UserProfile() {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("photos");
   const [sharingPhoto, setSharingPhoto] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState([]);
@@ -155,33 +155,33 @@ export function UserProfile() {
 
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !userId) return;
-    fetchProfile();
+    // fetchProfile();
   }, [isLoaded, isSignedIn, userId]);
 
-  const fetchProfile = async () => {
-    try {
-      if (!userId) {
-        console.warn("fetchProfile called without userId");
-        return;
-      }
+  // const fetchProfile = async () => {
+  //   try {
+  //     if (!userId) {
+  //       console.warn("fetchProfile called without userId");
+  //       return;
+  //     }
 
-      setLoading(true);
-      const response = await fetch(`/api/profile/${userId}`);
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile");
-      }
+  //     setLoading(true);
+  //     const response = await fetch(`/api/profile/${userId}`);
+  //     if (!response.ok) {
+  //       throw new Error("Failed to fetch profile");
+  //     }
 
-      const data = await response.json();
-      console.log("Fetched profile data:", data);
+  //     const data = await response.json();
+  //     console.log("Fetched profile data:", data);
 
-      setProfile(data.profile); // Or data directly if no `profile` wrapper
-    } catch (err) {
-      console.error("Error fetching profile:", err);
-      setError(err instanceof Error ? err.message : "Unknown error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setProfile(data.profile); // Or data directly if no `profile` wrapper
+  //   } catch (err) {
+  //     console.error("Error fetching profile:", err);
+  //     setError(err instanceof Error ? err.message : "Unknown error occurred");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   // Improved useEffect with better error handling and conditions
   useEffect(() => {
@@ -523,9 +523,7 @@ export function UserProfile() {
 
         <TabsContent value="photos" className="mt-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-2xl font-bold">
-              My Photos ({mockUserPhotos.length})
-            </h2>
+            <h2 className="text-2xl font-bold">My Photos ({images.length})</h2>
             <Button asChild>
               <a href="/submit">
                 <Plus className="h-4 w-4 mr-2" />
