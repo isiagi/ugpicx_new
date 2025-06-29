@@ -14,9 +14,9 @@ import Head from "next/head";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "ugpicx | Beautiful Free Photos & Images from Uganda",
+  title: "UgPicx | Discover Stunning Ugandan Photography",
   description:
-    "ugpicx offers beautiful free photos, stock images, and vectors showcasing the beauty of Uganda and beyond, shared by our talented local and international community.",
+    "Explore Uganda’s beauty with UgPicx – your ultimate destination for stunning free and premium photos showcasing landscapes, culture, wildlife, and people. Discover, share, and license breathtaking Ugandan photography.",
   viewport: "width=device-width, initial-scale=1",
 };
 
@@ -34,11 +34,11 @@ export default function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              name: "ugpicx",
+              name: "UgPicx",
               url: "https://www.ugpicx.com",
               logo: "https://www.ugpicx.com/ug.png",
               description:
-                "ugpicx offers beautiful free photos and images showcasing the beauty of Uganda and beyond.",
+                "Explore Uganda’s beauty with UgPicx – your ultimate destination for stunning free and premium photos showcasing landscapes, culture, wildlife, and people. Discover, share, and license breathtaking Ugandan photography.",
             }),
           }}
         />
