@@ -107,9 +107,15 @@ export function Header() {
           <div className="hidden md:block">
             <CurrencySelector />
           </div>
-          <Button variant="ghost" size="sm" className="hidden lg:flex" asChild>
-            <a href="/submit">Submit a photo</a>
+
+          {/* Submit Photo Button - Now visible on all screen sizes */}
+          <Button variant="ghost" size="sm" className="flex" asChild>
+            <a href="/submit" className="lg:flex">
+              <span className="hidden sm:inline">Submit a photo</span>
+              <Camera className="h-4 w-4 sm:hidden" />
+            </a>
           </Button>
+
           <Button variant="ghost" size="icon" className="hidden sm:flex">
             <Heart className="h-5 w-5" />
           </Button>
